@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from Model.model import PROFESORI, STUDENTI, DISCIPLINE
+from Model.database import db, create_tables
 
 app = FastAPI()
 

@@ -1,5 +1,5 @@
 from peewee import Model, IntegerField, CharField, ForeignKeyField, CompositeKey, _StringField
-from database import db
+from Model.database import db
 
 class BaseModel(Model):
     class Meta:
