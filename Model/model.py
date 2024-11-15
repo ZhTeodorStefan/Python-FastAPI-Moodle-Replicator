@@ -1,4 +1,4 @@
-from peewee import Model, IntegerField, CharField, ForeignKeyField, CompositeKey, _StringField
+from peewee import Model, IntegerField, CharField
 from Model.database import db
 
 class BaseModel(Model):
@@ -17,12 +17,12 @@ class STUDENTI(BaseModel):
 
 class PROFESORI(BaseModel):
     id = IntegerField(primary_key=True)
-    nume = _StringField()
-    prenume = _StringField()
-    email = _StringField(unique=True)
-    grad_didactic = _StringField()
-    tip_asociere = _StringField()
-    afiliere = _StringField()
+    nume = CharField()
+    prenume = CharField()
+    email = CharField(unique=True)
+    grad_didactic = CharField()
+    tip_asociere = CharField()
+    afiliere = CharField()
 
     class Meta:
         db_table = "profesori"
@@ -35,3 +35,4 @@ class DISCIPLINE(BaseModel):
 
     class Meta:
         db_table = "discipline"
+
