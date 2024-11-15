@@ -1,7 +1,9 @@
 from fastapi import FastAPI
-from Model.model import PROFESORI, STUDENTI, DISCIPLINE
+from Model.database import create_tables
+from Model.model import STUDENTI, PROFESORI, DISCIPLINE
 
 app = FastAPI()
+create_tables()
 
 # STUDENTI
 @app.get('/studenti')

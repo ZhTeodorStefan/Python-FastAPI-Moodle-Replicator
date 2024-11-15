@@ -1,9 +1,8 @@
 from peewee import Model, IntegerField, CharField
-from Model.database import db
 
 class BaseModel(Model):
     class Meta:
-        database = db
+        database = 'academia'
 
 class STUDENTI(BaseModel):
     id_student = IntegerField(primary_key=True)
@@ -13,7 +12,7 @@ class STUDENTI(BaseModel):
     an_studiu = IntegerField()
 
     class Meta:
-        db_table = "studenti"
+        db_table = 'STUDENTI'
 
 class PROFESORI(BaseModel):
     id = IntegerField(primary_key=True)
@@ -25,7 +24,7 @@ class PROFESORI(BaseModel):
     afiliere = CharField()
 
     class Meta:
-        db_table = "profesori"
+        db_table = 'PROFESORI'
 
 class DISCIPLINE(BaseModel):
     id_disciplina = IntegerField(primary_key=True)
@@ -34,5 +33,4 @@ class DISCIPLINE(BaseModel):
     nr_credite = IntegerField()
 
     class Meta:
-        db_table = "discipline"
-
+        db_table = 'DISCIPLINE'
