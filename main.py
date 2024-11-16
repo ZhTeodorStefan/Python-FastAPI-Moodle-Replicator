@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from Model.database import create_tables
+from Model.database import db
 from Model.model import STUDENTI, PROFESORI, DISCIPLINE
 
 app = FastAPI()
-create_tables()
+db.create_tables([STUDENTI, PROFESORI, DISCIPLINE], safe = True)
 
 # STUDENTI
 @app.get('/studenti')
