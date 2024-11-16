@@ -21,10 +21,10 @@ def create_tables():
         ]
 
         for table in tables:
-            table_name = table._meta.table_name
-            if not db.table_exists(table_name):
-                print(f"Procesam modelul: {table} (nume: {table_name}) (tip: {type(table)})")
+            # table_name = table._meta.db_table
+            if not db.table_exists(table):
+                print(f"Procesam modelul: {table} (nume: {table}) (tip: {type(table)})")
                 db.create_tables([table])
-                print(f'Tabelul "{table_name}" a fost creat.')
+                print(f'Tabelul "{table}" a fost creat.')
             else:
-                print(f'Tabelul "{table_name}" exista deja.')
+                print(f'Tabelul "{table}" exista deja.')

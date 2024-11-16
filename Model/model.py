@@ -11,8 +11,8 @@ class STUDENTI(BaseModel):
     grupa = CharField(unique=True)
     an_studiu = IntegerField()
 
-    class Meta:
-        db_table = 'STUDENTI'
+    # class Meta:
+    #     db_table = 'STUDENTI'
 
 class PROFESORI(BaseModel):
     id = IntegerField(primary_key=True)
@@ -23,8 +23,8 @@ class PROFESORI(BaseModel):
     tip_asociere = CharField()
     afiliere = CharField()
 
-    class Meta:
-        db_table = 'PROFESORI'
+    # class Meta:
+    #     db_table = 'PROFESORI'
 
 class DISCIPLINE(BaseModel):
     id_disciplina = IntegerField(primary_key=True)
@@ -32,5 +32,5 @@ class DISCIPLINE(BaseModel):
     an_studiu = IntegerField()
     nr_credite = IntegerField()
 
-    class Meta:
-        db_table = 'DISCIPLINE'
+    # class Meta:
+    #     db_table = 'DISCIPLINE'
