@@ -28,3 +28,5 @@ def create_tables():
                 print(f'Tabelul "{table}" a fost creat.')
             else:
                 print(f'Tabelul "{table}" exista deja.')
+
+# create_tables()
