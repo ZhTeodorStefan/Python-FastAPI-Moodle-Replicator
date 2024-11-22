@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from Model.database import db
-from Model.model import STUDENTI, PROFESORI, DISCIPLINE, StudentCreate, Profesor, Discipline, StudentUpdate
+from Model.model import *
 
 app = FastAPI()
 db.create_tables([STUDENTI, PROFESORI, DISCIPLINE], safe = True)
@@ -37,12 +37,15 @@ def get_studenti():
 # UPDATE
 @app.put('/studenti/{student_id}')
 def update_student(student_id: int, student_update: StudentUpdate):
-    student = STUDENTI.get(STUDENTI.id_student == student_id)
-    updated_data = student_update.dict(exclude_unset=True)
-    for key, value in updated_data.items():
-        setattr(student, key, value)
-    student.save()
-    return {"mesaj": "Student actualizat cu succes", "student": student.__data__}
+    try:
+        student = STUDENTI.get(STUDENTI.id_student == student_id)
+        updated_data = student_update.dict(exclude_unset=True)
+        for key, value in updated_data.items():
+            setattr(student, key, value)
+        student.save()
+        return {"mesaj": "Student actualizat cu succes", "student": student.__data__}
+    except STUDENTI.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Studentul nu a fost gasit")
 
 # DELETE
 @app.delete('/studenti/{student_id}')
@@ -65,15 +68,49 @@ profesor_exemplu:{
 }
 
 # CREATE
-
+@app.post('/profesori')
+def create_profesor(profesor: ProfesorCreate):
+    profesor_nou = PROFESORI.create(
+        nume=profesor.nume,
+        prenume=profesor.prenume,
+        email=profesor.email,
+        grad_didactic=profesor.grad_didactic,
+        tip_asociere=profesor.tip_asociere,
+        afiliere=profesor.afiliere
+    )
+    return {"mesaj": "Profesor adăugat cu succes", "profesor": profesor_nou.__data__}
 
 # READ
+@app.get('/profesori/{profesor_id}')
+def get_profesor(profesor_id: int):
+    profesor = PROFESORI.get(PROFESORI.id == profesor_id)
+    return {"profesor": profesor.__data__}
 @app.get('/profesori')
 def get_profesori():
     profesori = list(PROFESORI.select().dicts())
     return {"profesori": profesori}
 # UPDATE
+@app.put('/profesori/{profesor_id}')
+def update_profesor(profesor_id: int, profesor_update: ProfesorUpdate):
+    try:
+        profesor = PROFESORI.get(PROFESORI.id == profesor_id)
+        updated_data = profesor_update.dict(exclude_unset=True)
+        for key, value in updated_data.items():
+            setattr(profesor, key, value)
+        profesor.save()
+        return {"mesaj": "Profesor actualizat cu succes", "profesor": profesor.__data__}
+    except PROFESORI.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Profesorul nu a fost gasit")
+
 # DELETE
+@app.delete('/profesori/{profesor_id}')
+def delete_profesor(profesor_id: int):
+    try:
+        profesor = PROFESORI.get(PROFESORI.id == profesor_id)
+        profesor.delete_instance()
+        return {"mesaj": "Profesor șters cu succes"}
+    except PROFESORI.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Profesorul nu a fost gasit")
 
 # DISCIPLINE
 disciplina_exemplu:{
@@ -83,6 +120,8 @@ disciplina_exemplu:{
 }
 
 # CREATE
+
+
 # READ
 @app.get('/discipline')
 def get_discipline():

@@ -21,7 +21,6 @@ class StudentCreate(BaseModel):
     prenume: str
     grupa: str
     an_studiu: int
-
 class StudentUpdate(BaseModel):
     nume: str = None
     prenume: str = None
@@ -40,13 +39,20 @@ class PROFESORI(ParentModel):
     class Meta:
         db_table = 'profesori'
 
-class Profesor(BaseModel):
+class ProfesorCreate(BaseModel):
     nume: str
     prenume: str
     email: str
     grad_didactic: str
     tip_asociere: str
     afiliere: str
+class ProfesorUpdate(BaseModel):
+    nume: str = None
+    prenume: str = None
+    email: str = None
+    grad_didactic: str = None
+    tip_asociere: str = None
+    afiliere: str = None
 
 class DISCIPLINE(ParentModel):
     id_disciplina = AutoField(primary_key=True)
@@ -57,7 +63,11 @@ class DISCIPLINE(ParentModel):
     class Meta:
         db_table = 'discipline'
 
-class Discipline(BaseModel):
+class DisciplineCreate(BaseModel):
     nume: str
     an_studiu: int
     nr_credite: int
+class DisciplineUpdate(BaseModel):
+    nume: str = None
+    an_studiu: int = None
+    nr_credite: int = None
