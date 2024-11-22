@@ -1,22 +1,35 @@
-from peewee import Model, IntegerField, CharField
+from peewee import Model, IntegerField, CharField, AutoField
+from pydantic import BaseModel
 from Model.database import db
 
-class BaseModel(Model):
+class ParentModel(Model):
     class Meta:
         database = db
 
-class STUDENTI(BaseModel):
-    id_student = IntegerField(primary_key=True)
+class STUDENTI(ParentModel):
+    id_student = AutoField(primary_key=True)
     nume = CharField()
     prenume = CharField()
-    grupa = CharField(unique=True)
+    grupa = CharField()
     an_studiu = IntegerField()
 
     class Meta:
         db_table = 'studenti'
 
-class PROFESORI(BaseModel):
-    id = IntegerField(primary_key=True)
+class StudentCreate(BaseModel):
+    nume: str
+    prenume: str
+    grupa: str
+    an_studiu: int
+
+class StudentUpdate(BaseModel):
+    nume: str = None
+    prenume: str = None
+    grupa: str = None
+    an_studiu: int = None
+
+class PROFESORI(ParentModel):
+    id = AutoField(primary_key=True)
     nume = CharField()
     prenume = CharField()
     email = CharField(unique=True)
@@ -27,11 +40,24 @@ class PROFESORI(BaseModel):
     class Meta:
         db_table = 'profesori'
 
-class DISCIPLINE(BaseModel):
-    id_disciplina = IntegerField(primary_key=True)
+class Profesor(BaseModel):
+    nume: str
+    prenume: str
+    email: str
+    grad_didactic: str
+    tip_asociere: str
+    afiliere: str
+
+class DISCIPLINE(ParentModel):
+    id_disciplina = AutoField(primary_key=True)
     nume = CharField()
     an_studiu = IntegerField()
     nr_credite = IntegerField()
 
     class Meta:
         db_table = 'discipline'
+
+class Discipline(BaseModel):
+    nume: str
+    an_studiu: int
+    nr_credite: int
