@@ -1,12 +1,14 @@
 from peewee import MySQLDatabase
 
 # print('creare variabila db')
+
 db = MySQLDatabase(
     database = 'academia',
     user = 'root',
     password = 'root',
     host = 'localhost',
     port = 3306)
+
 # print('succes creare variabila db')
 
 # def create_and_test_tables():

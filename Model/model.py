@@ -63,11 +63,11 @@ class DISCIPLINE(ParentModel):
     class Meta:
         db_table = 'discipline'
 
-class DisciplineCreate(BaseModel):
+class DisciplinaCreate(BaseModel):
     nume: str
     an_studiu: int
     nr_credite: int
-class DisciplineUpdate(BaseModel):
+class DisciplinaUpdate(BaseModel):
     nume: str = None
     an_studiu: int = None
     nr_credite: int = None

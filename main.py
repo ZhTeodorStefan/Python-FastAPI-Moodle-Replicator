@@ -1,5 +1,4 @@
 from fastapi import FastAPI, HTTPException
-from Model.database import db
 from Model.model import *
 
 app = FastAPI()
@@ -16,19 +15,26 @@ student_exemplu:{
 # CREATE
 @app.post('/studenti')
 def create_student(student: StudentCreate):
-    student_nou = STUDENTI.create(
-        nume=student.nume,
-        prenume=student.prenume,
-        grupa=student.grupa,
-        an_studiu=student.an_studiu
-    )
-    return {"mesaj": "Student adaugat cu succes", "student": student_nou.__data__}
+    try:
+        student_nou = STUDENTI.create(
+            nume=student.nume,
+            prenume=student.prenume,
+            grupa=student.grupa,
+            an_studiu=student.an_studiu
+        )
+        return {"mesaj": "Student adaugat cu succes", "student": student_nou.__data__}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Eroare: {e}")
 
 # READ
 @app.get('/studenti/{student_id}')
 def get_student(student_id: int):
-    student = STUDENTI.get(STUDENTI.id_student == student_id)
-    return {"student": student.__data__}
+    try:
+        student = STUDENTI.get(STUDENTI.id_student == student_id)
+        return {"student": student.__data__}
+    except STUDENTI.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Studentul nu a fost gasit")
+
 @app.get('/studenti')
 def get_studenti():
     studenti = list(STUDENTI.select().dicts())
@@ -46,6 +52,8 @@ def update_student(student_id: int, student_update: StudentUpdate):
         return {"mesaj": "Student actualizat cu succes", "student": student.__data__}
     except STUDENTI.DoesNotExist:
         raise HTTPException(status_code=404, detail="Studentul nu a fost gasit")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Eroare: {e}")
 
 # DELETE
 @app.delete('/studenti/{student_id}')
@@ -56,6 +64,8 @@ def delete_student(student_id: int):
         return {"mesaj": "Student sters cu succes"}
     except STUDENTI.DoesNotExist:
         raise HTTPException(status_code=404, detail="Studentul nu a fost gasit")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Eroare: {e}")
 
 # PROFESORI
 profesor_exemplu:{
@@ -70,25 +80,32 @@ profesor_exemplu:{
 # CREATE
 @app.post('/profesori')
 def create_profesor(profesor: ProfesorCreate):
-    profesor_nou = PROFESORI.create(
-        nume=profesor.nume,
-        prenume=profesor.prenume,
-        email=profesor.email,
-        grad_didactic=profesor.grad_didactic,
-        tip_asociere=profesor.tip_asociere,
-        afiliere=profesor.afiliere
-    )
-    return {"mesaj": "Profesor adăugat cu succes", "profesor": profesor_nou.__data__}
+    try:
+        profesor_nou = PROFESORI.create(
+            nume=profesor.nume,
+            prenume=profesor.prenume,
+            email=profesor.email,
+            grad_didactic=profesor.grad_didactic,
+            tip_asociere=profesor.tip_asociere,
+            afiliere=profesor.afiliere
+        )
+        return {"mesaj": "Profesor adaugat cu succes", "profesor": profesor_nou.__data__}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Eroare: {e}")
 
 # READ
 @app.get('/profesori/{profesor_id}')
 def get_profesor(profesor_id: int):
-    profesor = PROFESORI.get(PROFESORI.id == profesor_id)
-    return {"profesor": profesor.__data__}
+    try:
+        profesor = PROFESORI.get(PROFESORI.id == profesor_id)
+        return {"profesor": profesor.__data__}
+    except PROFESORI.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Profesorul nu a fost gasit")
 @app.get('/profesori')
 def get_profesori():
     profesori = list(PROFESORI.select().dicts())
     return {"profesori": profesori}
+
 # UPDATE
 @app.put('/profesori/{profesor_id}')
 def update_profesor(profesor_id: int, profesor_update: ProfesorUpdate):
@@ -101,6 +118,8 @@ def update_profesor(profesor_id: int, profesor_update: ProfesorUpdate):
         return {"mesaj": "Profesor actualizat cu succes", "profesor": profesor.__data__}
     except PROFESORI.DoesNotExist:
         raise HTTPException(status_code=404, detail="Profesorul nu a fost gasit")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Eroare: {e}")
 
 # DELETE
 @app.delete('/profesori/{profesor_id}')
@@ -111,6 +130,8 @@ def delete_profesor(profesor_id: int):
         return {"mesaj": "Profesor șters cu succes"}
     except PROFESORI.DoesNotExist:
         raise HTTPException(status_code=404, detail="Profesorul nu a fost gasit")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Eroare: {e}")
 
 # DISCIPLINE
 disciplina_exemplu:{
@@ -120,12 +141,54 @@ disciplina_exemplu:{
 }
 
 # CREATE
-
+@app.post('/discipline')
+def create_disciplina(disciplina: DisciplinaCreate):
+    try:
+        disciplina_noua = DISCIPLINE.create(
+            nume=disciplina.nume,
+            an_studiu=disciplina.an_studiu,
+            nr_credite=disciplina.nr_credite
+        )
+        return {"mesaj": "Disciplina adăugata cu succes", "disciplina": disciplina_noua.__data__}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Eroare: {e}")
 
 # READ
+@app.get('/discipline/{disciplina_id}')
+def get_disciplina(disciplina_id: int):
+    try:
+        disciplina = DISCIPLINE.get(DISCIPLINE.id_disciplina == disciplina_id)
+        return {"disciplina": disciplina.__data__}
+    except DISCIPLINE.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Disciplina nu a fost găsita")
 @app.get('/discipline')
 def get_discipline():
     discipline = list(DISCIPLINE.select().dicts())
     return {"discipline": discipline}
+
 # UPDATE
+@app.put('/discipline/{disciplina_id}')
+def update_disciplina(disciplina_id: int, disciplina_update: DisciplinaUpdate):
+    try:
+        disciplina = DISCIPLINE.get(DISCIPLINE.id_disciplina == disciplina_id)
+        updated_data = disciplina_update.dict(exclude_unset=True)
+        for key, value in updated_data.items():
+            setattr(disciplina, key, value)
+        disciplina.save()
+        return {"mesaj": "Disciplina actualizata cu succes", "disciplina": disciplina.__data__}
+    except DISCIPLINE.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Disciplina nu a fost găsita")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Eroare: {e}")
+
 # DELETE
+@app.delete('/discipline/{disciplina_id}')
+def delete_disciplina(disciplina_id: int):
+    try:
+        disciplina = DISCIPLINE.get(DISCIPLINE.id_disciplina == disciplina_id)
+        disciplina.delete_instance()
+        return {"mesaj": "Disciplina stearsa cu succes"}
+    except DISCIPLINE.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Disciplina nu a fost găsita")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Eroare: {e}")
