@@ -3,6 +3,40 @@ from typing import Optional
 from peewee import Model, IntegerField, CharField, AutoField
 from pydantic import BaseModel, Field, field_validator, EmailStr
 from Model.database import db
+from peewee_enum_field import EnumField
+from enum import Enum
+
+# studenti
+class CicluStudii(Enum):
+    licenta = 1
+    master = 2
+
+# profesori
+class GradDidactic(Enum):
+    asist = 1
+    sef_lucr = 2
+    conf = 3
+    prof = 4
+
+class TipAsociere(Enum):
+    titular = 1
+    asociat = 2
+    extern = 3
+
+# discipline
+class TipDisciplina(Enum):
+    impusa = 1
+    optionala = 2
+    liber_aleasa = 3
+
+class CategorieDisciplina(Enum):
+    domeniu = 1
+    specialitate = 2
+    adiacenta = 3
+
+class TipExaminare(Enum):
+    examen = 1
+    colocviu = 2
 
 class ParentModel(Model):
     class Meta:
@@ -12,8 +46,10 @@ class STUDENTI(ParentModel):
     id_student = AutoField(primary_key=True)
     nume = CharField()
     prenume = CharField()
-    grupa = CharField()
+    email = CharField(unique=True)
+    ciclu_studii = EnumField(CicluStudii)
     an_studiu = IntegerField()
+    grupa = CharField()
 
     class Meta:
         db_table = 'studenti'
@@ -42,14 +78,16 @@ class StudentUpdate(BaseModel):
             raise ValueError('Numele si prenumele trebuie sa contina doar litere')
         return value
 
+#
+
 class PROFESORI(ParentModel):
-    id = AutoField(primary_key=True)
+    id_profesor = AutoField(primary_key=True)
     nume = CharField()
     prenume = CharField()
     email = CharField(unique=True)
-    grad_didactic = CharField()
-    tip_asociere = CharField()
-    afiliere = CharField()
+    grad_didactic = EnumField(GradDidactic)
+    tip_asociere = EnumField(TipAsociere)
+    afiliere = CharField(NULL = True)
 
     class Meta:
         db_table = 'profesori'
@@ -82,11 +120,17 @@ class ProfesorUpdate(BaseModel):
             raise ValueError('Numele si prenumele trebuie sa contina doar litere')
         return value
 
+#
+
 class DISCIPLINE(ParentModel):
-    id_disciplina = AutoField(primary_key=True)
-    nume = CharField()
+    cod = CharField(primary_key=True)
+    id_titular = IntegerField()
+    nume_disciplina = CharField()
     an_studiu = IntegerField()
     nr_credite = IntegerField()
+    tip_disciplina = EnumField(TipDisciplina)
+    categorie_disciplina = EnumField(CategorieDisciplina)
+    tip_examinare = EnumField(TipExaminare)
 
     class Meta:
         db_table = 'discipline'

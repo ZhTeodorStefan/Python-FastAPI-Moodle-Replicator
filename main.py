@@ -157,7 +157,7 @@ def get_profesori(
             {
                 **profesor,
                 "links": {
-                    "self": f"/profesori/{profesor['id']}",
+                    "self": f"/profesori/{profesor['id_profesor']}",
                     "parent": "/profesori"
                 }
             }
