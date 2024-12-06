@@ -1,5 +1,4 @@
 from fastapi import FastAPI, HTTPException, Query
-
 from Model.model import *
 
 app = FastAPI()
@@ -25,14 +24,18 @@ def create_student(student: StudentCreate):
 def get_student(student_id: int):
     try:
         student = STUDENTI.get(STUDENTI.id_student == student_id)
-        return {"student": student.__data__}
+        return {
+            "student": {
+                **student.__data__,
+                "links": {
+                    "self": f"/studenti/{student_id}",
+                    "parent": "/studenti"
+                }
+            }
+        }
     except STUDENTI.DoesNotExist:
         raise HTTPException(status_code=404, detail="Studentul nu a fost gasit")
 
-# @app.get('/studenti')
-# def get_studenti():
-#     studenti = list(STUDENTI.select().dicts())
-#     return {"studenti": studenti}
 @app.get('/studenti')
 def get_studenti(
     page: int = Query(1, ge=1, description="Pagina trebuie sa fie cel putin 1"),
@@ -47,15 +50,32 @@ def get_studenti(
     offset = (page - 1) * limit
     studenti = list(STUDENTI.select().limit(limit).offset(offset).dicts())
 
-    return {
-        "studenti": studenti,
+    response = {
+        "studenti": [
+            {
+                **student,
+                "links": {
+                    "self": f"/studenti/{student['id_student']}",
+                    "parent": "/studenti"
+                }
+            }
+            for student in studenti
+        ],
         "pagination": {
             "page": page,
             "limit": limit,
             "total_items": total_items,
             "total_pages": total_pages
+        },
+        "links": {
+            "self": f"/studenti?page={page}&limit={limit}",
+            "first": f"/studenti?page=1&limit={limit}",
+            "last": f"/studenti?page={total_pages}&limit={limit}" if total_pages > 0 else None,
+            "next": f"/studenti?page={page + 1}&limit={limit}" if page < total_pages else None,
+            "prev": f"/studenti?page={page - 1}&limit={limit}" if page > 1 else None
         }
     }
+    return response
 
 # UPDATE
 @app.put('/studenti/{student_id}')
@@ -106,14 +126,18 @@ def create_profesor(profesor: ProfesorCreate):
 def get_profesor(profesor_id: int):
     try:
         profesor = PROFESORI.get(PROFESORI.id == profesor_id)
-        return {"profesor": profesor.__data__}
+        return {
+            "profesor": {
+                **profesor.__data__,
+                "links": {
+                    "self": f"/profesori/{profesor_id}",
+                    "parent": "/profesori"
+                }
+            }
+        }
     except PROFESORI.DoesNotExist:
         raise HTTPException(status_code=404, detail="Profesorul nu a fost gasit")
 
-# @app.get('/profesori')
-# def get_profesori():
-#     profesori = list(PROFESORI.select().dicts())
-#     return {"profesori": profesori}
 @app.get('/profesori')
 def get_profesori(
     page: int = Query(1, ge=1, description="Pagina trebuie sa fie cel putin 1"),
@@ -128,15 +152,32 @@ def get_profesori(
     offset = (page - 1) * limit
     profesori = list(PROFESORI.select().limit(limit).offset(offset).dicts())
 
-    return {
-        "profesori": profesori,
+    response = {
+        "profesori": [
+            {
+                **profesor,
+                "links": {
+                    "self": f"/profesori/{profesor['id']}",
+                    "parent": "/profesori"
+                }
+            }
+            for profesor in profesori
+        ],
         "pagination": {
             "page": page,
             "limit": limit,
             "total_items": total_items,
             "total_pages": total_pages
+        },
+        "links": {
+            "self": f"/profesori?page={page}&limit={limit}",
+            "first": f"/profesori?page=1&limit={limit}",
+            "last": f"/profesori?page={total_pages}&limit={limit}" if total_pages > 0 else None,
+            "next": f"/profesori?page={page + 1}&limit={limit}" if page < total_pages else None,
+            "prev": f"/profesori?page={page - 1}&limit={limit}" if page > 1 else None
         }
     }
+    return response
 
 # UPDATE
 @app.put('/profesori/{profesor_id}')
@@ -184,14 +225,19 @@ def create_disciplina(disciplina: DisciplinaCreate):
 def get_disciplina(disciplina_id: int):
     try:
         disciplina = DISCIPLINE.get(DISCIPLINE.id_disciplina == disciplina_id)
+        return {
+            "disciplina": {
+                **disciplina.__data__,
+                "links": {
+                    "self": f"/discipline/{disciplina_id}",
+                    "parent": "/discipline"
+                }
+            }
+        }
         return {"disciplina": disciplina.__data__}
     except DISCIPLINE.DoesNotExist:
         raise HTTPException(status_code=404, detail="Disciplina nu a fost găsita")
 
-# @app.get('/discipline')
-# def get_discipline():
-#     discipline = list(DISCIPLINE.select().dicts())
-#     return {"discipline": discipline}
 @app.get('/discipline')
 def get_discipline(
     page: int = Query(1, ge=1, description="Pagina trebuie sa fie cel putin 1"),
@@ -206,15 +252,32 @@ def get_discipline(
     offset = (page - 1) * limit
     discipline = list(DISCIPLINE.select().limit(limit).offset(offset).dicts())
 
-    return {
-        "discipline": discipline,
+    response = {
+        "discipline": [
+            {
+                **disciplina,
+                "links": {
+                    "self": f"/discipline/{disciplina['id_disciplina']}",
+                    "parent": "/discipline"
+                }
+            }
+            for disciplina in discipline
+        ],
         "pagination": {
             "page": page,
             "limit": limit,
             "total_items": total_items,
             "total_pages": total_pages
+        },
+        "links": {
+            "self": f"/discipline?page={page}&limit={limit}",
+            "first": f"/discipline?page=1&limit={limit}",
+            "last": f"/discipline?page={total_pages}&limit={limit}" if total_pages > 0 else None,
+            "next": f"/discipline?page={page + 1}&limit={limit}" if page < total_pages else None,
+            "prev": f"/discipline?page={page - 1}&limit={limit}" if page > 1 else None
         }
     }
+    return response
 
 # UPDATE
 @app.put('/discipline/{disciplina_id}')
