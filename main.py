@@ -1,17 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
+
 from Model.model import *
 
 app = FastAPI()
 db.create_tables([STUDENTI, PROFESORI, DISCIPLINE], safe = True)
 
-# STUDENTI
-student_exemplu:{
-    "nume": "Popescu",
-    "prenume": "Ion",
-    "grupa": "A1",
-    "an_studiu": 3
-}
-
+# STUDENT
 # CREATE
 @app.post('/studenti')
 def create_student(student: StudentCreate):
@@ -35,10 +29,33 @@ def get_student(student_id: int):
     except STUDENTI.DoesNotExist:
         raise HTTPException(status_code=404, detail="Studentul nu a fost gasit")
 
+# @app.get('/studenti')
+# def get_studenti():
+#     studenti = list(STUDENTI.select().dicts())
+#     return {"studenti": studenti}
 @app.get('/studenti')
-def get_studenti():
-    studenti = list(STUDENTI.select().dicts())
-    return {"studenti": studenti}
+def get_studenti(
+    page: int = Query(1, ge=1, description="Pagina trebuie sa fie cel putin 1"),
+    limit: int = Query(10, ge=1, le=50, description="Limita trebuie sa fie intre 1 si 50")
+):
+    total_items = STUDENTI.select().count()
+    total_pages = (total_items + limit - 1) // limit
+
+    if page > total_pages > 0:
+        raise HTTPException(status_code=416, detail="Range not satisfiable")
+
+    offset = (page - 1) * limit
+    studenti = list(STUDENTI.select().limit(limit).offset(offset).dicts())
+
+    return {
+        "studenti": studenti,
+        "pagination": {
+            "page": page,
+            "limit": limit,
+            "total_items": total_items,
+            "total_pages": total_pages
+        }
+    }
 
 # UPDATE
 @app.put('/studenti/{student_id}')
@@ -67,16 +84,7 @@ def delete_student(student_id: int):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Eroare: {e}")
 
-# PROFESORI
-profesor_exemplu:{
-    "nume": "Ionescu",
-    "prenume": "Maria",
-    "email": "maria.ionescu@example.com",
-    "grad_didactic": "Profesor",
-    "tip_asociere": "Titular",
-    "afiliere": "Facultatea de Informatica"
-}
-
+# PROFESOR
 # CREATE
 @app.post('/profesori')
 def create_profesor(profesor: ProfesorCreate):
@@ -101,10 +109,34 @@ def get_profesor(profesor_id: int):
         return {"profesor": profesor.__data__}
     except PROFESORI.DoesNotExist:
         raise HTTPException(status_code=404, detail="Profesorul nu a fost gasit")
+
+# @app.get('/profesori')
+# def get_profesori():
+#     profesori = list(PROFESORI.select().dicts())
+#     return {"profesori": profesori}
 @app.get('/profesori')
-def get_profesori():
-    profesori = list(PROFESORI.select().dicts())
-    return {"profesori": profesori}
+def get_profesori(
+    page: int = Query(1, ge=1, description="Pagina trebuie sa fie cel putin 1"),
+    limit: int = Query(10, ge=1, le=50, description="Limita trebuie sa fie intre 1 si 50")
+):
+    total_items = PROFESORI.select().count()
+    total_pages = (total_items + limit - 1) // limit
+
+    if page > total_pages > 0:
+        raise HTTPException(status_code=416, detail="Range not satisfiable")
+
+    offset = (page - 1) * limit
+    profesori = list(PROFESORI.select().limit(limit).offset(offset).dicts())
+
+    return {
+        "profesori": profesori,
+        "pagination": {
+            "page": page,
+            "limit": limit,
+            "total_items": total_items,
+            "total_pages": total_pages
+        }
+    }
 
 # UPDATE
 @app.put('/profesori/{profesor_id}')
@@ -133,13 +165,7 @@ def delete_profesor(profesor_id: int):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Eroare: {e}")
 
-# DISCIPLINE
-disciplina_exemplu:{
-    "nume": "Algoritmi Avansati",
-    "an_studiu": 3,
-    "nr_credite": 5
-}
-
+# DISCIPLINA
 # CREATE
 @app.post('/discipline')
 def create_disciplina(disciplina: DisciplinaCreate):
@@ -161,10 +187,34 @@ def get_disciplina(disciplina_id: int):
         return {"disciplina": disciplina.__data__}
     except DISCIPLINE.DoesNotExist:
         raise HTTPException(status_code=404, detail="Disciplina nu a fost găsita")
+
+# @app.get('/discipline')
+# def get_discipline():
+#     discipline = list(DISCIPLINE.select().dicts())
+#     return {"discipline": discipline}
 @app.get('/discipline')
-def get_discipline():
-    discipline = list(DISCIPLINE.select().dicts())
-    return {"discipline": discipline}
+def get_discipline(
+    page: int = Query(1, ge=1, description="Pagina trebuie sa fie cel putin 1"),
+    limit: int = Query(10, ge=1, le=50, description="Limita trebuie sa fie intre 1 si 50")
+):
+    total_items = DISCIPLINE.select().count()
+    total_pages = (total_items + limit - 1) // limit
+
+    if page > total_pages > 0:
+        raise HTTPException(status_code=416, detail="Range not satisfiable")
+
+    offset = (page - 1) * limit
+    discipline = list(DISCIPLINE.select().limit(limit).offset(offset).dicts())
+
+    return {
+        "discipline": discipline,
+        "pagination": {
+            "page": page,
+            "limit": limit,
+            "total_items": total_items,
+            "total_pages": total_pages
+        }
+    }
 
 # UPDATE
 @app.put('/discipline/{disciplina_id}')
