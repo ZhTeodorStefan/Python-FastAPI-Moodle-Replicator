@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException, Query
-from Model.model import *
+from Model.disciplina_model import *
+from Model.profesor_model import *
+from Model.student_model import *
 
 app = FastAPI()
 db.create_tables([STUDENTI, PROFESORI, DISCIPLINE], safe = True)
@@ -12,8 +14,10 @@ def create_student(student: StudentCreate):
         student_nou = STUDENTI.create(
             nume=student.nume,
             prenume=student.prenume,
-            grupa=student.grupa,
-            an_studiu=student.an_studiu
+            email=student.email,
+            ciclu_studii = student.ciclu_studii,
+            an_studiu=student.an_studiu,
+            grupa=student.grupa
         )
         return {"mesaj": "Student adaugat cu succes", "student": student_nou.__data__}
     except Exception as e:
