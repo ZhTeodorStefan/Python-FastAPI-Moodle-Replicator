@@ -35,7 +35,7 @@ class ProfesorCreate(BaseModel):
 
     @field_validator('nume', 'prenume', 'afiliere')
     def check_alpha(cls, value):
-        if not value.isalpha():
+        if value is not None and not value.isalpha():
             raise ValueError('Numele, prenumele si afilierea trebuie sa contina doar litere')
         return value
 
@@ -49,6 +49,6 @@ class ProfesorUpdate(BaseModel):
 
     @field_validator('nume', 'prenume', 'afiliere')
     def check_alpha(cls, value):
-        if not value.isalpha():
+        if value is not None and not value.isalpha():
             raise ValueError('Numele, prenumele si afilierea trebuie sa contina doar litere')
         return value
