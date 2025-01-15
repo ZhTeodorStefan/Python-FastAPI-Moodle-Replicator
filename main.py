@@ -6,6 +6,7 @@ from Model.student_model import *
 app = FastAPI()
 db.create_tables([STUDENTI, PROFESORI, DISCIPLINE], safe = True)
 
+
 # STUDENT
 # CREATE
 @app.post('/studenti', status_code = 201)
@@ -87,9 +88,24 @@ def update_student(student_id: int, student_update: StudentUpdate):
     try:
         student = STUDENTI.get(STUDENTI.id_student == student_id)
         updated_data = student_update.dict(exclude_unset=True)
+
+        if "nume" in updated_data and (updated_data["nume"] < 2 or updated_data["nume"] > 30):
+            raise HTTPException(status_code=422, detail="Numele trebuie sa aiba intre 2 si 30 de caractere.")
+        if "prenume" in updated_data and (updated_data["prenume"] < 2 or updated_data["prenume"] > 30):
+            raise HTTPException(status_code=422, detail="Prenumele trebuie sa aiba intre 2 si 30 de caractere.")
+        if "email" in updated_data and not validate_email(updated_data["email"]):
+            raise HTTPException(status_code=422, detail="Email-ul furnizat nu este valid.")
+        if "ciclu_studii" in updated_data and (updated_data["ciclu_studii"] < 1 or updated_data["ciclu_studii"] > 2):
+            raise HTTPException(status_code=422, detail="Ciclul de studii trebuie sa fie 1(licenta) sau 2(master).")
+        if "an_studiu" in updated_data and (updated_data["an_studiu"] < 1 or updated_data["an_studiu"] > 4):
+            raise HTTPException(status_code=422, detail="Anul de studiu trebuie sa fie intre 1 si 4.")
+        if "grupa" in updated_data and validate_grupa(updated_data["grupa"]):
+            raise HTTPException(status_code=422, detail="Grupa trebuie sa fie de forma 1409A.")
+
         for key, value in updated_data.items():
             setattr(student, key, value)
         student.save()
+
         return {"mesaj": "Student actualizat cu succes", "student": student.__data__}
     except STUDENTI.DoesNotExist:
         raise HTTPException(status_code=404, detail="Studentul nu a fost gasit")
@@ -107,6 +123,8 @@ def delete_student(student_id: int):
         raise HTTPException(status_code=404, detail="Studentul nu a fost gasit")
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Eroare: {e}")
+
+
 
 
 
@@ -215,6 +233,8 @@ def delete_profesor(profesor_id: int):
 
 
 
+
+
 # DISCIPLINA
 # CREATE
 @app.post('/discipline', status_code= 201)
@@ -270,7 +290,7 @@ def get_discipline(
             {
                 **disciplina,
                 "links": {
-                    "self": f"/discipline/{disciplina['id_disciplina']}",
+                    "self": f"/discipline/{disciplina['cod']}",
                     "parent": "/discipline"
                 }
             }
