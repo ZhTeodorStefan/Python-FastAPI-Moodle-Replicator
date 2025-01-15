@@ -18,7 +18,7 @@ class TipExaminare(Enum):
     colocviu = 2
 
 class DISCIPLINE(ParentModel):
-    cod = CharField(primary_key=True)
+    cod = IntegerField(primary_key=True)
     id_titular = ForeignKeyField(PROFESORI, backref='id_profesor')
     nume_disciplina = CharField()
     an_studiu = IntegerField()

@@ -297,7 +297,7 @@ def create_disciplina(disciplina: DisciplinaCreate):
 @app.get('/discipline/{disciplina_id}')
 def get_disciplina(disciplina_id: int):
     try:
-        disciplina = DISCIPLINE.get(DISCIPLINE.id_disciplina == disciplina_id)
+        disciplina = DISCIPLINE.get(DISCIPLINE.cod == disciplina_id)
         return {
             "disciplina": {
                 **disciplina.__data__,
@@ -355,12 +355,12 @@ def get_discipline(
 @app.put('/discipline/{disciplina_id}')
 def update_disciplina(disciplina_id: int, disciplina_update: DisciplinaUpdate):
     try:
-        disciplina = DISCIPLINE.get(DISCIPLINE.id_disciplina == disciplina_id)
+        disciplina = DISCIPLINE.get(DISCIPLINE.cod == disciplina_id)
         updated_data = disciplina_update.dict(exclude_unset=True)
 
         if "cod" in updated_data and not (2 <= len(updated_data["cod"]) <= 10):
             raise HTTPException(status_code=422, detail="Codul trebuie sa aiba intre 2 si 10 caractere.")
-        if "id_titular" in updated_data and not PROFESORI.select().where(PROFESORI.id_profesor == updated_data["id_titular"]).exists():
+        if "id_titular" in updated_data and PROFESORI.select().where(PROFESORI.id_profesor == updated_data["id_titular"]).exists():
             raise HTTPException(status_code=422, detail="ID-ul titularului nu este valid.")
         if "nume_disciplina" in updated_data:
             validate_nume_prenume(updated_data["nume_disciplina"], "nume disciplina")
@@ -397,7 +397,7 @@ def update_disciplina(disciplina_id: int, disciplina_update: DisciplinaUpdate):
 @app.delete('/discipline/{disciplina_id}')
 def delete_disciplina(disciplina_id: int):
     try:
-        disciplina = DISCIPLINE.get(DISCIPLINE.id_disciplina == disciplina_id)
+        disciplina = DISCIPLINE.get(DISCIPLINE.cod == disciplina_id)
         disciplina.delete_instance()
         return {"mesaj": "Disciplina stearsa cu succes"}
     except DISCIPLINE.DoesNotExist:
