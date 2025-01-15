@@ -28,7 +28,7 @@ class StudentCreate(BaseModel):
 
     @field_validator('nume', 'prenume')
     def check_alpha(cls, value):
-        if not value.isalpha():
+        if value and not value.replace(" ", "").isalpha():
             raise ValueError('Numele si prenumele trebuie sa contina doar litere')
         return value
 
@@ -40,17 +40,7 @@ class StudentUpdate(BaseModel):
     an_studiu: Optional[int] = Field(None, ge=1, le=4, description="Anul de studiu trebuie sa fie între 1 și 4")
     grupa: Optional[str] = Field(None, pattern=r'^\d{4}[A-B]$', description="Grupa trebuie sa fie formata din 4 cifre si o litera (A sau B), ex: 1409A")
 
-    @field_validator('nume', 'prenume')
-    def check_alpha(cls, value):
-        if value and not value.isalpha():
-            raise ValueError('Numele si prenumele trebuie sa contina doar litere')
-        return value
 
 def validate_grupa(grupa: str) -> bool:
-    """
-    Validează dacă o grupă respectă formatul cerut.
-    :param grupa: String-ul reprezentând grupa de validat.
-    :return: True dacă grupa este validă, altfel False.
-    """
     grupa_regex = r'^[1-4]\d{3}[AB]$'
-    return re.match(grupa_regex, grupa) is not None
+    return re.match(grupa_regex, grupa) is None

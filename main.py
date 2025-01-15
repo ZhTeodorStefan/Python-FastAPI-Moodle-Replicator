@@ -21,6 +21,8 @@ def create_student(student: StudentCreate):
             grupa=student.grupa
         )
         return {"mesaj": "Student adaugat cu succes", "student": student_nou.__data__}
+    except ValueError as ve:
+        raise HTTPException(status_code=422, detail=f"Eroare: {ve}")
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Eroare: {e}")
 
@@ -89,10 +91,10 @@ def update_student(student_id: int, student_update: StudentUpdate):
         student = STUDENTI.get(STUDENTI.id_student == student_id)
         updated_data = student_update.dict(exclude_unset=True)
 
-        if "nume" in updated_data and (updated_data["nume"] < 2 or updated_data["nume"] > 30):
-            raise HTTPException(status_code=422, detail="Numele trebuie sa aiba intre 2 si 30 de caractere.")
-        if "prenume" in updated_data and (updated_data["prenume"] < 2 or updated_data["prenume"] > 30):
-            raise HTTPException(status_code=422, detail="Prenumele trebuie sa aiba intre 2 si 30 de caractere.")
+        if "nume" in updated_data:
+            validate_nume_prenume(updated_data["nume"], "nume")
+        if "prenume" in updated_data:
+            validate_nume_prenume(updated_data["prenume"], "prenume")
         if "email" in updated_data and not validate_email(updated_data["email"]):
             raise HTTPException(status_code=422, detail="Email-ul furnizat nu este valid.")
         if "ciclu_studii" in updated_data and (updated_data["ciclu_studii"] < 1 or updated_data["ciclu_studii"] > 2):
@@ -105,8 +107,16 @@ def update_student(student_id: int, student_update: StudentUpdate):
         for key, value in updated_data.items():
             setattr(student, key, value)
         student.save()
+        return {
+            "student": {
+                **student.__data__,
+                "links": {
+                    "self": f"/studenti/{student_id}",
+                    "parent": "/studenti"
+                }
+            }
+        }
 
-        return {"mesaj": "Student actualizat cu succes", "student": student.__data__}
     except STUDENTI.DoesNotExist:
         raise HTTPException(status_code=404, detail="Studentul nu a fost gasit")
     except Exception as e:
@@ -132,16 +142,20 @@ def delete_student(student_id: int):
 # CREATE
 @app.post('/profesori', status_code= 201)
 def create_profesor(profesor: ProfesorCreate):
+    print(profesor.grad_didactic.value)
+    print(profesor.tip_asociere.value)
     try:
         profesor_nou = PROFESORI.create(
             nume=profesor.nume,
             prenume=profesor.prenume,
             email=profesor.email,
-            grad_didactic=profesor.grad_didactic.value,
-            tip_asociere=profesor.tip_asociere.value,
+            grad_didactic=profesor.grad_didactic,
+            tip_asociere=profesor.tip_asociere,
             afiliere=profesor.afiliere
         )
         return {"mesaj": "Profesor adaugat cu succes", "profesor": profesor_nou.__data__}
+    except ValueError as ve:
+        raise HTTPException(status_code=422, detail=f"Eroare: {ve}")
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Eroare: {e}")
 
@@ -149,7 +163,7 @@ def create_profesor(profesor: ProfesorCreate):
 @app.get('/profesori/{profesor_id}')
 def get_profesor(profesor_id: int):
     try:
-        profesor = PROFESORI.get(PROFESORI.id == profesor_id)
+        profesor = PROFESORI.get(PROFESORI.id_profesor == profesor_id)
         return {
             "profesor": {
                 **profesor.__data__,
@@ -207,12 +221,35 @@ def get_profesori(
 @app.put('/profesori/{profesor_id}')
 def update_profesor(profesor_id: int, profesor_update: ProfesorUpdate):
     try:
-        profesor = PROFESORI.get(PROFESORI.id == profesor_id)
+        profesor = PROFESORI.get(PROFESORI.id_profesor == profesor_id)
         updated_data = profesor_update.dict(exclude_unset=True)
+
+        if "nume" in updated_data:
+            validate_nume_prenume(updated_data["nume"], "nume")
+        if "prenume" in updated_data:
+            validate_nume_prenume(updated_data["prenume"], "prenume")
+        if "email" in updated_data and not validate_email(updated_data["email"]):
+            raise HTTPException(status_code=422, detail="Email-ul furnizat nu este valid.")
+        if "grad_didactic" in updated_data and updated_data["grad_didactic"] not in GradDidactic:
+            raise HTTPException(status_code=422, detail="Gradul didactic trebuie sa fie unul dintre: asist, sef_lucr, conf, prof.")
+        if "tip_asociere" in updated_data and updated_data["tip_asociere"] not in TipAsociere:
+            raise HTTPException(status_code=422, detail="Tipul de asociere trebuie sa fie unul dintre: titular, asociat, extern.")
+        if "afiliere" in updated_data and (len(updated_data["afiliere"]) < 2 or len(updated_data["afiliere"]) > 100):
+            raise HTTPException(status_code=422, detail="Afilierea trebuie sa aiba intre 2 si 100 de caractere.")
+
         for key, value in updated_data.items():
             setattr(profesor, key, value)
         profesor.save()
-        return {"mesaj": "Profesor actualizat cu succes", "profesor": profesor.__data__}
+        return {
+            "profesor": {
+                **profesor.__data__,
+                "links": {
+                    "self": f"/profesori/{profesor_id}",
+                    "parent": "/profesori"
+                }
+            }
+        }
+
     except PROFESORI.DoesNotExist:
         raise HTTPException(status_code=404, detail="Profesorul nu a fost gasit")
     except Exception as e:
@@ -222,7 +259,7 @@ def update_profesor(profesor_id: int, profesor_update: ProfesorUpdate):
 @app.delete('/profesori/{profesor_id}')
 def delete_profesor(profesor_id: int):
     try:
-        profesor = PROFESORI.get(PROFESORI.id == profesor_id)
+        profesor = PROFESORI.get(PROFESORI.id_profesor == profesor_id)
         profesor.delete_instance()
         return {"mesaj": "Profesor șters cu succes"}
     except PROFESORI.DoesNotExist:
@@ -251,6 +288,8 @@ def create_disciplina(disciplina: DisciplinaCreate):
             tip_examinare=disciplina.tip_examinare
         )
         return {"mesaj": "Disciplina adăugata cu succes", "disciplina": disciplina_noua.__data__}
+    except ValueError as ve:
+        raise HTTPException(status_code=422, detail=f"Eroare: {ve}")
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Eroare: {e}")
 
@@ -318,10 +357,37 @@ def update_disciplina(disciplina_id: int, disciplina_update: DisciplinaUpdate):
     try:
         disciplina = DISCIPLINE.get(DISCIPLINE.id_disciplina == disciplina_id)
         updated_data = disciplina_update.dict(exclude_unset=True)
+
+        if "cod" in updated_data and not (2 <= len(updated_data["cod"]) <= 10):
+            raise HTTPException(status_code=422, detail="Codul trebuie sa aiba intre 2 si 10 caractere.")
+        if "id_titular" in updated_data and not PROFESORI.select().where(PROFESORI.id_profesor == updated_data["id_titular"]).exists():
+            raise HTTPException(status_code=422, detail="ID-ul titularului nu este valid.")
+        if "nume_disciplina" in updated_data:
+            validate_nume_prenume(updated_data["nume_disciplina"], "nume disciplina")
+        if "an_studiu" in updated_data and not (1 <= updated_data["an_studiu"] <= 4):
+            raise HTTPException(status_code=422, detail="Anul de studiu trebuie sa fie intre 1 si 4.")
+        if "nr_credite" in updated_data and not (1 <= updated_data["nr_credite"] <= 15):
+            raise HTTPException(status_code=422, detail="Numarul de credite trebuie sa fie intre 1 si 15.")
+        if "tip_disciplina" in updated_data and updated_data["tip_disciplina"] not in TipDisciplina:
+            raise HTTPException(status_code=422, detail="Tipul disciplinei trebuie sa fie impusa, optionala sau liber aleasa.")
+        if "categorie_disciplina" in updated_data and updated_data["categorie_disciplina"] not in CategorieDisciplina:
+            raise HTTPException(status_code=422, detail="Categoria disciplinei trebuie sa fie domeniu, specialitate sau adiacenta.")
+        if "tip_examinare" in updated_data and updated_data["tip_examinare"] not in TipExaminare:
+            raise HTTPException(status_code=422, detail="Tipul examinarii trebuie sa fie examen sau colocviu.")
+
         for key, value in updated_data.items():
             setattr(disciplina, key, value)
         disciplina.save()
-        return {"mesaj": "Disciplina actualizata cu succes", "disciplina": disciplina.__data__}
+        return {
+            "disciplina": {
+                **disciplina.__data__,
+                "links": {
+                    "self": f"/discipline/{disciplina_id}",
+                    "parent": "/discipline"
+                }
+            }
+        }
+
     except DISCIPLINE.DoesNotExist:
         raise HTTPException(status_code=404, detail="Disciplina nu a fost găsita")
     except Exception as e:
