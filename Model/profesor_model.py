@@ -64,11 +64,11 @@ class ProfesorUpdate(BaseModel):
     tip_asociere: Optional[TipAsociere] = Field(None, description="Tipul de asociere trebuie sa fie unul dintre: titular, asociat, extern")
     afiliere: Optional[str] = Field(None, min_length=2, max_length=100, description="Afilierea trebuie sa aiba intre 2 si 100 de caractere")
 
-    @field_validator('afiliere')
-    def check_alpha(cls, value):
-        if value and not value.replace(" ", "").isalpha():
-            raise ValueError('Afilierea trebuie sa contina doar litere')
-        return value
+    # @field_validator('afiliere')
+    # def check_alpha(cls, value):
+    #     if value and not value.replace(" ", "").isalpha():
+    #         raise ValueError('Afilierea trebuie sa contina doar litere')
+    #     return value
 
     # @field_validator('grad_didactic')
     # def validate_grad_didactic(cls, value):

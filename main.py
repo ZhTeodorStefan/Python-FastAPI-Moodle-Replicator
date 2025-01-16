@@ -11,7 +11,9 @@ db.create_tables([STUDENTI, PROFESORI, DISCIPLINE], safe = True)
 # CREATE
 @app.post('/studenti', status_code = 201)
 def create_student(student: StudentCreate):
+    print(student.ciclu_studii)
     try:
+        print(f"Date student primite: {student}")
         student_nou = STUDENTI.create(
             nume=student.nume,
             prenume=student.prenume,
@@ -20,6 +22,7 @@ def create_student(student: StudentCreate):
             an_studiu=student.an_studiu,
             grupa=student.grupa
         )
+        print(f"Student creat: {student_nou.__data__}")
         return {"mesaj": "Student adaugat cu succes", "student": student_nou.__data__}
     except ValueError as ve:
         raise HTTPException(status_code=422, detail=f"Eroare: {ve}")
@@ -142,9 +145,10 @@ def delete_student(student_id: int):
 # CREATE
 @app.post('/profesori', status_code= 201)
 def create_profesor(profesor: ProfesorCreate):
-    print(profesor.grad_didactic.value)
-    print(profesor.tip_asociere.value)
+    print(profesor.grad_didactic)
+    print(profesor.tip_asociere)
     try:
+        print(f"Date profesor primite: {profesor}")
         profesor_nou = PROFESORI.create(
             nume=profesor.nume,
             prenume=profesor.prenume,
@@ -153,6 +157,7 @@ def create_profesor(profesor: ProfesorCreate):
             tip_asociere=profesor.tip_asociere,
             afiliere=profesor.afiliere
         )
+        print(f"Profesor creat: {profesor_nou.__data__}")
         return {"mesaj": "Profesor adaugat cu succes", "profesor": profesor_nou.__data__}
     except ValueError as ve:
         raise HTTPException(status_code=422, detail=f"Eroare: {ve}")
@@ -163,7 +168,9 @@ def create_profesor(profesor: ProfesorCreate):
 @app.get('/profesori/{profesor_id}')
 def get_profesor(profesor_id: int):
     try:
+        print(f"Interogare profesor cu id: {profesor_id}")
         profesor = PROFESORI.get(PROFESORI.id_profesor == profesor_id)
+        print(f"Profesor găsit: {profesor.__data__}")
         return {
             "profesor": {
                 **profesor.__data__,
@@ -276,7 +283,11 @@ def delete_profesor(profesor_id: int):
 # CREATE
 @app.post('/discipline', status_code= 201)
 def create_disciplina(disciplina: DisciplinaCreate):
+    print(disciplina.TipDisciplina)
+    print(disciplina.CategorieDisciplina)
+    print(disciplina.TipExaminare)
     try:
+        print(f"Date disciplina primite: {disciplina}")
         disciplina_noua = DISCIPLINE.create(
             cod=disciplina.cod,
             id_titular=disciplina.id_titular,
@@ -287,6 +298,7 @@ def create_disciplina(disciplina: DisciplinaCreate):
             categorie_disciplina=disciplina.categorie_disciplina,
             tip_examinare=disciplina.tip_examinare
         )
+        print(f"Disciplina creata: {disciplina_noua.__data__}")
         return {"mesaj": "Disciplina adăugata cu succes", "disciplina": disciplina_noua.__data__}
     except ValueError as ve:
         raise HTTPException(status_code=422, detail=f"Eroare: {ve}")
@@ -308,7 +320,7 @@ def get_disciplina(disciplina_id: int):
             }
         }
     except DISCIPLINE.DoesNotExist:
-        raise HTTPException(status_code=404, detail="Disciplina nu a fost găsita")
+        raise HTTPException(status_code=404, detail="Disciplina nu a fost gasita")
 
 @app.get('/discipline')
 def get_discipline(
@@ -389,7 +401,7 @@ def update_disciplina(disciplina_id: int, disciplina_update: DisciplinaUpdate):
         }
 
     except DISCIPLINE.DoesNotExist:
-        raise HTTPException(status_code=404, detail="Disciplina nu a fost găsita")
+        raise HTTPException(status_code=404, detail="Disciplina nu a fost gasita")
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Eroare: {e}")
 
@@ -401,6 +413,6 @@ def delete_disciplina(disciplina_id: int):
         disciplina.delete_instance()
         return {"mesaj": "Disciplina stearsa cu succes"}
     except DISCIPLINE.DoesNotExist:
-        raise HTTPException(status_code=404, detail="Disciplina nu a fost găsita")
+        raise HTTPException(status_code=404, detail="Disciplina nu a fost gasita")
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Eroare: {e}")
