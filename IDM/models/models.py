@@ -1,5 +1,5 @@
 from peewee import Model, AutoField, CharField, Check
-from IDM.configurations.database_config import database
+from configurations.database_config import database
 from enum import Enum
 import hashlib
 

@@ -1,5 +1,5 @@
 from peewee import PostgresqlDatabase
-from IDM.private_keys.keys import DATABASE_CONNECTION_STRING, REDIS_DB_PASSWORD_STRING
+from private_keys.keys import DATABASE_CONNECTION_STRING, REDIS_DB_PASSWORD_STRING
 
 import redis
 
